@@ -1,14 +1,15 @@
 #ifndef LIBRERIAS_H
 #define LIBRERIAS_H
 
-int contarCaracteres(const char* nombreArchivo);
-char* leerArchivo(const char* nombreArchivo);
-void iniciodescompresion();
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cctype>
 
-// Declaración de funciones
-int contarCaracteres(const char* nombreArchivo);
-char* leerArchivo(const char* nombreArchivo);
-void iniciodescompresion();
-void identificarMetodoCompresion(char* contenido);
+using namespace std;
 
-#endif // LIBRERIAS_H
+char* leerArchivo(const char* nombreArchivo);
+char* identificarTipoCompresion(const char* contenido);
+long obtenerTamanoArchivo(const char* nombreArchivo);
+
+#endif
