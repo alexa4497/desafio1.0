@@ -3,13 +3,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstring>
-#include <cctype>
+#include <direct.h>  // Agregar esta línea
 
 using namespace std;
 
-char* leerArchivo(const char* nombreArchivo);
-char* identificarTipoCompresion(const char* contenido);
-long obtenerTamanoArchivo(const char* nombreArchivo);
+// Declaración de funciones para leer archivos encriptados
+bool leerArchivoEncriptado(char nombreArchivo[], char** contenido, int* tamanoContenido);
+int obtenerNombreArchivo(char nombreArchivo[], int tamanoMaximo);
+bool leerArchivoEncriptadoCompleto(char** contenido, int* tamanoContenido);
 
-#endif
+#endif // LIBRER

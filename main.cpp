@@ -1,26 +1,39 @@
 #include "librerias.h"
+#include <direct.h>
 
 int main() {
-    const char* nombreArchivo = "archivo.txt";
+    char* contenido = NULL;
+    int tamanoContenido = 0;
 
-    // Leer el archivo
-    char* contenido = leerArchivo(nombreArchivo);
+    cout << "=== Lector de Archivos Encriptados ===" << endl;
 
-    if (!contenido) {
-        cout << "No se pudo leer el archivo." << endl;
-        return 1;
+    // Verificar la ubicación actual
+    char directorioActual[256];
+    if (getcwd(directorioActual, sizeof(directorioActual)) != NULL) {
+        cout << "Directorio actual: " << directorioActual << endl;
     }
 
-    // Identificar tipo de compresión
-    char* tipoCompresion = identificarTipoCompresion(contenido);
+    // Leer archivo encriptado
+    if (leerArchivoEncriptadoCompleto(&contenido, &tamanoContenido)) {
+        cout << "\nContenido leido exitosamente!" << endl;
+        cout << "Tamaño total: " << tamanoContenido << " caracteres" << endl;
 
-    cout << "Contenido del archivo:" << endl;
-    cout << contenido << endl;
-    cout << "\nTipo de compresión detectado: " << tipoCompresion << endl;
+        cout << "\nPrimeros 100 caracteres del archivo:" << endl;
+        cout << "----------------------------------------" << endl;
 
-    // Liberar memoria
-    delete[] contenido;
-    delete[] tipoCompresion;
+        // Mostrar primeros 100 caracteres
+        for (int i = 0; i < 100 && i < tamanoContenido; i++) {
+            cout << contenido[i];
+        }
+        cout << endl;
+        cout << "----------------------------------------" << endl;
+
+        delete[] contenido;
+        cout << "Memoria liberada correctamente." << endl;
+    } else {
+        cout << "Error al leer el archivo." << endl;
+    }
+    system("pause");
 
     return 0;
 }

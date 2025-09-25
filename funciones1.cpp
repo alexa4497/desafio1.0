@@ -1,72 +1,98 @@
 #include "librerias.h"
 
+bool leerArchivoEncriptado(char nombreArchivo[], char** contenido, int* tamanoContenido) {
+    char rutaCompleta[200];
+    int i = 0;
+    int caracter;
+    int capacidad = 1024; // Capacidad inicial
+    int tamano = 0;
+    char* contenidoTemp = NULL;
 
-long obtenerTamanoArchivo(const char* nombreArchivo) {
-    ifstream archivo(nombreArchivo, ios::ate | ios::binary);
-    if (!archivo.is_open()) {
-        return -1;
+    int pos = 0;
+
+    while (nombreArchivo[i] != '\0' && i < 50) {
+        rutaCompleta[pos + i] = nombreArchivo[i];
+        i++;
     }
-    long tamano = archivo.tellg();
-    archivo.close();
-    return tamano;
-}
+    rutaCompleta[pos + i] = '\0';
 
-// Función para leer archivo de texto
-char* leerArchivo(const char* nombreArchivo) {
-    long tamano = obtenerTamanoArchivo(nombreArchivo);
-    if (tamano == -1) {
-        cerr << "Error: No se pudo abrir el archivo " << nombreArchivo << endl;
-        return nullptr;
-    }
-
-
-    char* contenido = new char[tamano + 1];
-
-    ifstream archivo(nombreArchivo);
-    if (!archivo.is_open()) {
-        delete[] contenido;
-        cerr << "Error: No se pudo abrir el archivo " << nombreArchivo << endl;
-        return nullptr;
+    FILE* archivo = fopen(rutaCompleta, "rb");
+    if (archivo == NULL) {
+        cout << "Error: No se pudo abrir el archivo " << rutaCompleta << endl;
+        return false;
     }
 
-    archivo.read(contenido, tamano);
-    contenido[tamano] = '\0'; // Terminar la cadena
+    *contenido = new char[capacidad];
+    if (*contenido == NULL) {
+        cout << "Error: No se pudo asignar memoria" << endl;
+        fclose(archivo);
+        return false;
+    }
 
-    archivo.close();
-    return contenido;
-}
+    while ((caracter = fgetc(archivo)) != EOF) {
+        // Si necesitamos más espacio, redimensionar
+        if (tamano >= capacidad - 1) {
+            capacidad *= 2;
+            contenidoTemp = new char[capacidad];
+            if (contenidoTemp == NULL) {
+                cout << "Error: No se pudo redimensionar la memoria" << endl;
+                delete[] *contenido;
+                fclose(archivo);
+                return false;
+            }
 
-// Función para identificar tipo de compresión
-char* identificarTipoCompresion(const char* contenido) {
-    if (!contenido) return nullptr;
+            // Copiar contenido existente
+            for (int k = 0; k < tamano; k++) {
+                contenidoTemp[k] = (*contenido)[k];
+            }
 
-    int longitud = strlen(contenido);
-    bool esRLE = false;
-    bool esLZ78 = false;
-
-    // Detectar RLE: busca patrones como "3A" o "5B" (número seguido de carácter)
-    for (int i = 0; i < longitud - 1; i++) {
-        if (isdigit(contenido[i]) && isalpha(contenido[i + 1])) {
-            esRLE = true;
-            break;
+            // Liberar memoria anterior y asignar nueva
+            delete[] *contenido;
+            *contenido = contenidoTemp;
         }
+
+        (*contenido)[tamano] = (char)caracter;
+        tamano++;
     }
 
-    // Detectar LZ78: busca patrones como diccionario con índices
-    if (strstr(contenido, "dict") != nullptr ||
-        strstr(contenido, "index") != nullptr ||
-        (strchr(contenido, '(') != nullptr && strchr(contenido, ')') != nullptr)) {
-        esLZ78 = true;
+    (*contenido)[tamano] = '\0';
+
+    fclose(archivo);
+
+    *tamanoContenido = tamano;
+    cout << "Archivo " << rutaCompleta << " leido exitosamente." << endl;
+    cout << "Tamano del contenido: " << tamano << " caracteres" << endl;
+
+    return true;
+}
+
+
+int obtenerNombreArchivo(char nombreArchivo[], int tamanoMaximo) {
+    char caracter;
+    int i = 0;
+
+    cout << "Ingrese el nombre del archivo (ej: EncriptadoX): ";
+
+    // Leer caracteres hasta encontrar salto de línea
+    while ((caracter = getchar()) != '\n' && caracter != EOF && i < tamanoMaximo - 1) {
+        nombreArchivo[i] = caracter;
+        i++;
     }
 
-    char* resultado = new char[20];
-    if (esRLE) {
-        strcpy(resultado, "RLE");
-    } else if (esLZ78) {
-        strcpy(resultado, "LZ78");
-    } else {
-        strcpy(resultado, "DESCONOCIDO");
+    // Agregar carácter nulo al final
+    nombreArchivo[i] = '\0';
+
+    return i;
+}
+
+bool leerArchivoEncriptadoCompleto(char** contenido, int* tamanoContenido) {
+    char nombreArchivo[100];
+
+    int caracteresNombre = obtenerNombreArchivo(nombreArchivo, 100);
+    if (caracteresNombre == 0) {
+        cout << "Error: No se ingreso nombre de archivo" << endl;
+        return false;
     }
 
-    return resultado;
+    return leerArchivoEncriptado(nombreArchivo, contenido, tamanoContenido);
 }
