@@ -1,98 +1,75 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
 #include "librerias.h"
 
-bool leerArchivoEncriptado(char nombreArchivo[], char** contenido, int* tamanoContenido) {
+using namespace std;
+
+// Ruta absoluta que contiene los archivos
+const char* RUTA_ABSOLUTA = "C:\\Users\\alexa\\Desktop\\desafio1_0\\datasetDesarrollo\\";
+
+// La función para leer la pista y almacenar los punteros
+char** leerPistaEnPunteros(const char* nombreArchivo, int& longitud) {
     char rutaCompleta[200];
-    int i = 0;
-    int caracter;
-    int capacidad = 1024; // Capacidad inicial
-    int tamano = 0;
-    char* contenidoTemp = NULL;
 
-    int pos = 0;
+    // Combinar la ruta absoluta y el nombre del archivo
+    strcpy(rutaCompleta, RUTA_ABSOLUTA);
+    strcat(rutaCompleta, nombreArchivo);
 
-    while (nombreArchivo[i] != '\0' && i < 50) {
-        rutaCompleta[pos + i] = nombreArchivo[i];
-        i++;
-    }
-    rutaCompleta[pos + i] = '\0';
-
-    FILE* archivo = fopen(rutaCompleta, "rb");
-    if (archivo == NULL) {
-        cout << "Error: No se pudo abrir el archivo " << rutaCompleta << endl;
-        return false;
+    ifstream archivo(rutaCompleta,ios::in | ios::binary);
+    if (!archivo.is_open()) {
+        cerr << "Error: No se pudo abrir el archivo de la pista en la ruta " << rutaCompleta << std::endl;
+        longitud = 0;
+        return nullptr;
     }
 
-    *contenido = new char[capacidad];
-    if (*contenido == NULL) {
-        cout << "Error: No se pudo asignar memoria" << endl;
-        fclose(archivo);
-        return false;
+    // Contar el número de caracteres para determinar la longitud
+    archivo.seekg(0, ios::end);
+    longitud = archivo.tellg();
+    archivo.seekg(0, ios::beg);
+
+    // Crear un arreglo de punteros y un búfer para los datos
+    char** punterosPista = new char*[longitud];
+    char* datosPista = new char[longitud + 1];
+
+    // Leer cada caracter y guardar su dirección en el arreglo de punteros
+    for (int i = 0; i < longitud; ++i) {
+        archivo.get(datosPista[i]);
+        punterosPista[i] = &datosPista[i];
     }
+    datosPista[longitud] = '\0'; // Terminador nulo
 
-    while ((caracter = fgetc(archivo)) != EOF) {
-        // Si necesitamos más espacio, redimensionar
-        if (tamano >= capacidad - 1) {
-            capacidad *= 2;
-            contenidoTemp = new char[capacidad];
-            if (contenidoTemp == NULL) {
-                cout << "Error: No se pudo redimensionar la memoria" << endl;
-                delete[] *contenido;
-                fclose(archivo);
-                return false;
-            }
-
-            // Copiar contenido existente
-            for (int k = 0; k < tamano; k++) {
-                contenidoTemp[k] = (*contenido)[k];
-            }
-
-            // Liberar memoria anterior y asignar nueva
-            delete[] *contenido;
-            *contenido = contenidoTemp;
-        }
-
-        (*contenido)[tamano] = (char)caracter;
-        tamano++;
-    }
-
-    (*contenido)[tamano] = '\0';
-
-    fclose(archivo);
-
-    *tamanoContenido = tamano;
-    cout << "Archivo " << rutaCompleta << " leido exitosamente." << endl;
-    cout << "Tamano del contenido: " << tamano << " caracteres" << endl;
-
-    return true;
+    archivo.close();
+    return punterosPista;
 }
 
-
-int obtenerNombreArchivo(char nombreArchivo[], int tamanoMaximo) {
-    char caracter;
-    int i = 0;
-
-    cout << "Ingrese el nombre del archivo (ej: EncriptadoX): ";
-
-    // Leer caracteres hasta encontrar salto de línea
-    while ((caracter = getchar()) != '\n' && caracter != EOF && i < tamanoMaximo - 1) {
-        nombreArchivo[i] = caracter;
-        i++;
-    }
-
-    // Agregar carácter nulo al final
-    nombreArchivo[i] = '\0';
-
-    return i;
-}
-
-bool leerArchivoEncriptadoCompleto(char** contenido, int* tamanoContenido) {
+// Función principal de procesamiento
+void procesarPista() {
     char nombreArchivo[100];
 
-    int caracteresNombre = obtenerNombreArchivo(nombreArchivo, 100);
-    if (caracteresNombre == 0) {
-        cout << "Error: No se ingreso nombre de archivo" << endl;
-        return false;
+    cout << "Por favor, ingrese el nombre del archivo de la pista (ej. pista2.txt): ";
+    cin >> nombreArchivo;
+
+    int longitudPista = 0;
+    // Llamada a la función para leer la pista y obtener el arreglo de punteros
+    char** punterosPista = leerPistaEnPunteros(nombreArchivo, longitudPista);
+
+    if (punterosPista == nullptr || longitudPista == 0) {
+        cerr << "Error: La pista no pudo ser leída o está vacía." << std::endl;
+        return;
     }
 
-    return leerArchivoEncriptado(nombreArchivo, contenido, tamanoContenido);
+    // Mostrar la pista leída
+    cout << "Pista leida: ";
+    for (int i = 0; i < longitudPista; ++i) {
+        cout << *punterosPista[i];
+    }
+    cout << endl;
+
+    // Aquí iría la llamada a la función de compresión
+    // por ejemplo: compressLZ78(punterosPista, longitudPista);
+
+    // Liberar la memoria asignada dinámicamente
+    delete[] punterosPista[0]; // Libera el bloque de datos de la pista
+    delete[] punterosPista;    // Libera el arreglo de punteros
 }

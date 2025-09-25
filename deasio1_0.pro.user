@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 17.0.1, 2025-09-24T21:44:41. -->
+<!-- Written by QtCreator 17.0.1, 2025-09-25T12:12:23. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -170,7 +170,7 @@
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory">C:/Users/alexa/Desktop/desafio1_0/datasetDesarrollo</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory">C:/Users/alexa/Desktop/desafio1_0</value>
      <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/alexa/Desktop/deasio1_0/build/Desktop_Qt_6_8_3_llvm_mingw_64_bit-Debug</value>
     </valuemap>
     <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
@@ -208,7 +208,7 @@
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory">C:/Users/alexa/Desktop/desafio1_0/datasetDesarrollo</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory">C:/Users/alexa/Desktop/desafio1_0</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/alexa/Desktop/deasio1_0/build/Desktop_Qt_6_8_3_llvm_mingw_64_bit-Debug</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>

@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         funciones1.cpp \
+        funciones2.cpp \
         main.cpp
 
 HEADERS += \
