@@ -2,16 +2,14 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
-#include "librerias.h"
+#include <cstdlib>
 
 // Ruta absoluta fija
 const char* RUTA_ABSOLUTA = "C:\\Users\\alexa\\Desktop\\desafio1_0\\datasetDesarrollo\\";
 
-
 // Función para leer la pista y almacenar los punteros
 char** leerPistaEnPunteros(const char* nombreArchivo, int& longitud) {
     char rutaCompleta[200];
-
     strcpy(rutaCompleta, RUTA_ABSOLUTA);
     strcat(rutaCompleta, nombreArchivo);
 
@@ -38,27 +36,6 @@ char** leerPistaEnPunteros(const char* nombreArchivo, int& longitud) {
     return punterosPista;
 }
 
-// Función principal de procesamiento
-void procesarPista() {
-    char nombreArchivo[100];
-    puts("Por favor, ingrese el nombre del archivo de la pista (ej. pista1.txt): ");
-    scanf("%s", nombreArchivo);
-
-    int longitudPista = 0;
-    char** punterosPista = leerPistaEnPunteros(nombreArchivo, longitudPista);
-
-    if (punterosPista == nullptr || longitudPista == 0) {
-        puts("Error: La pista no pudo ser leída o está vacía.");
-        return;
-    }
-
-
-    mostrarCompresion(punterosPista,longitudPista);
-
-    delete[] punterosPista[0];
-    delete[] punterosPista;
-}
-
 // Función para mostrar el texto plano
 void mostrarTextoPlano(char** pista, int longitud) {
     puts("Texto plano leido: ");
@@ -68,47 +45,44 @@ void mostrarTextoPlano(char** pista, int longitud) {
     puts("");
 }
 
+// Función de compresión RLE
 char* comprimirConRLE(char** pista, int longitud, int* longitudComprimida) {
     if (longitud <= 0) {
         *longitudComprimida = 0;
         return NULL;
     }
 
-    // Se asigna memoria dinámicamente. Un tamaño máximo de dos veces la longitud original es un valor seguro.
     char* datosComprimidos = (char*)malloc(longitud * 2);
     int indiceComprimido = 0;
     int i = 0;
 
-    // Recorre la pista para encontrar repeticiones
     while (i < longitud) {
         char caracterActual = *pista[i];
         int contador = 1;
         int j = i + 1;
 
-        while (j < longitud && *pista[j] == caracterActual) {
+        while (j < longitud && *pista[j] == caracterActual && contador < 9) {
             contador++;
             j++;
         }
 
         if (contador > 1) {
-            // Si el caracter se repite, guarda el contador y luego el caracter
             datosComprimidos[indiceComprimido++] = (char)('0' + contador);
             datosComprimidos[indiceComprimido++] = caracterActual;
         } else {
-            // Si no se repite, guarda solo el caracter
             datosComprimidos[indiceComprimido++] = caracterActual;
         }
-
         i = j;
     }
 
-    // Ajusta el tamaño del arreglo al tamaño real de los datos comprimidos
     *longitudComprimida = indiceComprimido;
-    datosComprimidos = (char*)realloc(datosComprimidos, *longitudComprimida);
+    datosComprimidos = (char*)realloc(datosComprimidos, *longitudComprimida + 1);
+    datosComprimidos[*longitudComprimida] = '\0';
 
     return datosComprimidos;
 }
 
+// Función para mostrar el resultado de la compresión RLE
 void mostrarCompresionRLE(char* comprimido, int longitud) {
     puts("Resultado de la compresion RLE: ");
     for (int i = 0; i < longitud; ++i) {
@@ -117,22 +91,108 @@ void mostrarCompresionRLE(char* comprimido, int longitud) {
     puts("");
 }
 
-// Integracion en tu funcion principal de procesamiento
-void mostrarCompresion(char** pista, int longitud) {
-    // 1. Muestra el texto plano primero
-    mostrarTextoPlano(pista, longitud);
+// Nueva función de descompresión RLE
+char* descomprimirConRLE(const char* nombreArchivo, int* longitudDescomprimida) {
+    char rutaCompleta[200];
+    strcpy(rutaCompleta, RUTA_ABSOLUTA);
+    strcat(rutaCompleta, nombreArchivo);
 
-    // 2. Comprime con LZ78 y muestra el resultado
+    std::ifstream archivo(rutaCompleta, std::ios::in | std::ios::binary | std::ios::ate);
+    if (!archivo.is_open()) {
+        printf("Error: No se pudo abrir el archivo comprimido en la ruta %s\n", rutaCompleta);
+        *longitudDescomprimida = 0;
+        return NULL;
+    }
 
-    // 3. Comprime con RLE y muestra el resultado
-    int longitudComprimida = 0;
-    char* datosComprimidos = comprimirConRLE(pista, longitud, &longitudComprimida);
+    int longitudComprimida = archivo.tellg();
+    archivo.seekg(0, std::ios::beg);
 
-    if (datosComprimidos != NULL) {
-        mostrarCompresionRLE(datosComprimidos, longitudComprimida);
-        free(datosComprimidos);
+    char* datosComprimidos = new char[longitudComprimida + 1];
+    archivo.read(datosComprimidos, longitudComprimida);
+    datosComprimidos[longitudComprimida] = '\0';
+
+    char* datosDescomprimidos = (char*)malloc(longitudComprimida * 10);
+    int indiceDescomprimido = 0;
+
+    for (int i = 0; i < longitudComprimida; ++i) {
+        if (datosComprimidos[i] >= '2' && datosComprimidos[i] <= '9') {
+            int contador = datosComprimidos[i] - '0';
+            char caracter = datosComprimidos[++i];
+            for (int j = 0; j < contador; ++j) {
+                datosDescomprimidos[indiceDescomprimido++] = caracter;
+            }
+        } else {
+            datosDescomprimidos[indiceDescomprimido++] = datosComprimidos[i];
+        }
+    }
+
+    delete[] datosComprimidos;
+    archivo.close();
+
+    *longitudDescomprimida = indiceDescomprimido;
+    datosDescomprimidos = (char*)realloc(datosDescomprimidos, *longitudDescomprimida + 1);
+    datosDescomprimidos[*longitudDescomprimida] = '\0';
+
+    return datosDescomprimidos;
+}
+
+// Función para mostrar el resultado de la descompresión
+void mostrarDescompresionRLE(char* descomprimido, int longitud) {
+    puts("Resultado de la descompresion RLE: ");
+    if (descomprimido != NULL) {
+        for (int i = 0; i < longitud; ++i) {
+            putchar(descomprimido[i]);
+        }
+    }
+    puts("");
+}
+
+// Función principal de procesamiento
+void procesarPista() {
+    char nombreArchivo[100];
+    int opcion;
+
+    puts("Por favor, ingrese el nombre del archivo: ");
+    scanf("%s", nombreArchivo);
+
+    puts("Seleccione una opcion:");
+    puts("1. Comprimir y mostrar");
+    puts("2. Descomprimir y mostrar");
+    scanf("%d", &opcion);
+
+    if (opcion == 1) {
+        int longitudPista = 0;
+        char** punterosPista = leerPistaEnPunteros(nombreArchivo, longitudPista);
+
+        if (punterosPista == nullptr || longitudPista == 0) {
+            puts("Error: archivo no pudo ser leido o esta vacio.");
+            return;
+        }
+
+        mostrarTextoPlano(punterosPista, longitudPista);
+
+        int longitudComprimida = 0;
+        char* datosComprimidos = comprimirConRLE(punterosPista, longitudPista, &longitudComprimida);
+
+        if (datosComprimidos != NULL) {
+            mostrarCompresionRLE(datosComprimidos, longitudComprimida);
+            free(datosComprimidos);
+        }
+
+        delete[] punterosPista[0];
+        delete[] punterosPista;
+
+    } else if (opcion == 2) {
+        int longitudDescomprimida = 0;
+        char* datosDescomprimidos = descomprimirConRLE(nombreArchivo, &longitudDescomprimida);
+
+        if (datosDescomprimidos != NULL) {
+            mostrarDescompresionRLE(datosDescomprimidos, longitudDescomprimida);
+            free(datosDescomprimidos);
+        }
+    } else {
+        puts("Opcion no valida.");
     }
 }
 
-//FUNCIONES LZ78
 

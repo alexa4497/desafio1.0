@@ -9,4 +9,6 @@ int main() {
     for (int i=0; i < cantPistas;i++){
         procesarPista();
     }return 0;
+     procesarPista();
+
 }
