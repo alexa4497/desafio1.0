@@ -1,11 +1,16 @@
 #ifndef LIBRERIAS_H
 #define LIBRERIAS_H
 
-#include <iostream>
+#include <cstdio>
 #include <fstream>
+#include <cstring>
+#include <vector>
 
-// Declaración de las funciones para el proyecto de encriptación y compresión
-char** leerPistaEnPunteros(const char* nombreArchivo, int& longitud);
+
 void procesarPista();
+char** leerPistaEnPunteros(const char* nombreArchivo, int& longitud);
+void mostrarTextoPlano(char** pista, int longitud);
+void mostrarCompresion(char** pista, int longitud);
+
 
 #endif // LIBRERIAS_H
