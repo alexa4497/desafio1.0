@@ -1,10 +1,10 @@
 #include "librerias.h"
 #include <cstring>
-#include <cstdlib>  // <- AGREGAR ESTA LÍNEA
+#include <cstdlib>
 
 
 
-// Función para rotar bits a la izquierda (CORREGIDA)
+
 unsigned char rotarIzquierda(unsigned char byte, int rotaciones) {
     if (rotaciones <= 0 || rotaciones >= 8) {
         rotaciones = rotaciones % 8;

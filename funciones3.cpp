@@ -70,17 +70,17 @@ void procesarPistaLZ78(const char* datosComprimidos, int tamano) {
     printf("Datos recibidos (%d bytes).\n", tamano);
 
     if (!esFormatoLZ78Valido(datosComprimidos)) {
-        printf("❌ Los datos NO tienen formato LZ78 válido (esperado: N,C N,C ...)\n");
+        printf(" Los datos NO tienen formato LZ78 válido (esperado: N,C N,C ...)\n");
         printf("Fragmento de datos: '%.50s'\n", datosComprimidos);
         return;
     }
 
-    printf("✅ Formato LZ78 detectado, descomprimiendo...\n");
-    // La función LZ78 es la que realiza el trabajo de descompresión
+    printf("Formato LZ78 detectado, descomprimiendo...\n");
+
     char* resultadoLZ78 = LZ78(datosComprimidos, 2);
 
     if (resultadoLZ78 && resultadoLZ78[0] != '\0') {
-        printf("✅ DESCOMPRESIÓN EXITOSA!\n");
+        printf("DESCOMPRESIÓN EXITOSA!\n");
         printf("Resultado: '%s'\n", resultadoLZ78);
 
         char nombreSalida[100];
@@ -92,7 +92,7 @@ void procesarPistaLZ78(const char* datosComprimidos, int tamano) {
             printf("Error al leer el nombre de salida.\n");
         }
     } else {
-        printf("❌ La descompresión LZ78 falló o el resultado está vacío.\n");
+        printf("La descompresión LZ78 falló o el resultado está vacío.\n");
     }
 
     free(resultadoLZ78); // Liberar la memoria asignada por LZ78
