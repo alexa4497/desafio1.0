@@ -1,9 +1,7 @@
 #include "librerias.h"
 #include <cstring>
 #include <cstdlib>
-
-
-
+using namespace std;
 
 unsigned char rotarIzquierda(unsigned char byte, int rotaciones) {
     if (rotaciones <= 0 || rotaciones >= 8) {
